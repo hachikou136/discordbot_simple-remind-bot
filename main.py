@@ -7,7 +7,6 @@ import random
 from datetime import datetime
 from pytz import timezone
 import mycrypt
-# from discord.ext import tasks
 import asyncio
 
 
@@ -18,21 +17,16 @@ client = discord.Client(intents=Intents)
 tz = timezone('Asia/Tokyo')
 
 
-flag = os.environ['MESSAGE_WAS_SEND']
-message_content = os.environ['MESSAGE']
+message_content = os.getenv('MESSAGE')
 second_loop_interval = 60
-set_time = '12:00'
+set_time = '2023:03:06:12:00'
 async def send_message_by_reminder():
-    # channel = client.get_channel(int(os.environ['CHANNEL_ID']))
-    # await channel.send('おはよう')
     while True:
-      # 現在の時刻
-      now = datetime.now(tz).strftime('%H:%M')
+      now = datetime.now(tz).strftime('%Y:%m:%d:%H:%M')
       print('time is checked at', now)
-      if (now == set_time) and (flag == 'NO'):
+      if (now == set_time):
           print('send message at', now)
-          os.environ['MESSAGE_WAS_SEND'] = 'YES'
-          channel = client.get_channel(int(os.environ['CHANNEL_ID']))
+          channel = client.get_channel(int(os.getenv('CHANNEL_ID')))
           await channel.send(message_content)
       await asyncio.sleep(second_loop_interval)
 
@@ -126,7 +120,7 @@ async def on_message(message):
 
 # CREATE TABLE memo(user_id integer, user_name string, memo_title string, memo_content string);
 # create index memo_user_id_index on memo(user_id);
-if os.environ['IS_INITIALISED_SQLITEDB3'] == "False":
+if os.getenv('IS_INITIALISED_SQLITEDB3') == "False":
   print('=== Start initializing database. ===')
   print(
     '=== You can prevent initializind database file by change secret to True. ==='
@@ -141,7 +135,7 @@ if os.environ['IS_INITIALISED_SQLITEDB3'] == "False":
   ).fetchone()
   conn.execute("create index memo_user_id_index on memo(user_id)").fetchone()
   # It does not looks working, so you have to set secret by manually:
-  # os.environ['IS_INITIALISED_SQLITEDB3'] = "True"
+  # os.getenv('IS_INITIALISED_SQLITEDB3') = "True"
 
 
 async def memo_man(message):
@@ -267,4 +261,4 @@ def get_value_dharma():
 keep_alive()
 
 
-client.run(os.environ['TOKEN'])
+client.run(os.getenv('TOKEN'))
